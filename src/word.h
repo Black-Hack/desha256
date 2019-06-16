@@ -30,15 +30,15 @@ boolexpr::bx_t bit_xor(const boolexpr::bx_t& a, const boolexpr::bx_t& b) {
 }
 template <>
 boolexpr::bx_t bit_not(const boolexpr::bx_t& a) {
-	return (~a)->simplify();
+	return ~a;
 }
 template <>
 boolexpr::bx_t bit_zero() {
-	return boolexpr::zero();
+	return boolexpr::zero_;
 }
 template <>
 boolexpr::bx_t bit_one() {
-	return boolexpr::one();
+	return boolexpr::one_;
 }
 
 template<typename T, size_t N>
@@ -82,6 +82,12 @@ constexpr std::array<T, N> operator+(const std::array<T, N>& a, const std::array
 		}
 	}
 	return r;
+}
+
+template<typename T, size_t N>
+constexpr std::array<T, N>& operator+=(std::array<T, N>& a, const std::array<T, N>& b) {
+	a = a + b;
+	return a;
 }
 
 template<typename T, size_t N>
