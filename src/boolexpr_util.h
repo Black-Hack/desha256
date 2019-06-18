@@ -12,12 +12,14 @@ namespace boolexpr
 
 	template<typename T>
 	constexpr std::array<bx_t, sizeof(T) * 8>
-	unpackbits(const T & n) {
+		unpackbits(const T & n)
+	{
 		constexpr size_t N = sizeof(T) * 8;
 		std::bitset<N> b(n);
 		std::array<bx_t, N> r;
 
-		for (size_t i = 0; i < N; i++) {
+		for (size_t i = 0; i < N; i++)
+		{
 			r[N - i - 1] = b[i] ? one_ : zero_;
 		}
 

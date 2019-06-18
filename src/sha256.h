@@ -24,8 +24,9 @@ word<32> sigma0(word<32> x) { return RotR(x, 7) ^ RotR(x, 18) ^ ShR(x, 3); }
 word<32> sigma1(word<32> x) { return RotR(x, 17) ^ RotR(x, 19) ^ ShR(x, 10); }
 
 template<size_t N>
-static std::array<boolexpr::bx_t, ((N + 65) / 512 + ((N + 65) % 512 == 0 ? 0 : 1)) * 512>
-pad(const std::array<boolexpr::bx_t, N> & m) {
+inline static std::array<boolexpr::bx_t, ((N + 65) / 512 + ((N + 65) % 512 == 0 ? 0 : 1)) * 512>
+pad(const std::array<boolexpr::bx_t, N> & m)
+{
 	std::array<boolexpr::bx_t, ((N + 65) / 512 + ((N + 65) % 512 == 0 ? 0 : 1)) * 512> r;
 	std::copy(m.begin(), m.end(), r.begin());
 
@@ -38,7 +39,8 @@ pad(const std::array<boolexpr::bx_t, N> & m) {
 	return r;
 }
 
-void Round(word<32> a, word<32> b, word<32> c, word<32> & d, word<32> e, word<32> f, word<32> g, word<32> & h, word<32> k)
+inline void
+Round(word<32> a, word<32> b, word<32> c, word<32> & d, word<32> e, word<32> f, word<32> g, word<32> & h, word<32> k)
 {
 	word<32> t1 = h + Sigma1(e) + Ch(e, f, g) + k;
 	word<32> t2 = Sigma0(a) + Maj(a, b, c);
@@ -46,7 +48,8 @@ void Round(word<32> a, word<32> b, word<32> c, word<32> & d, word<32> e, word<32
 	h = t1 + t2;
 }
 
-void Transform(std::array<word<32>, 8> & s, std::array<word<32>, 16> & chunk)
+inline void
+Transform(std::array<word<32>, 8> & s, std::array<word<32>, 16> & chunk)
 {
 	using boolexpr::unpackbits;
 
@@ -133,7 +136,8 @@ void Transform(std::array<word<32>, 8> & s, std::array<word<32>, 16> & chunk)
 
 template<size_t N>
 std::array<boolexpr::bx_t, 256>
-sha256(const std::array<boolexpr::bx_t, N> & m) {
+sha256(const std::array<boolexpr::bx_t, N> & m)
+{
 	using boolexpr::unpackbits;
 
 	const auto a = pad(m);
@@ -152,10 +156,10 @@ sha256(const std::array<boolexpr::bx_t, N> & m) {
 
 	for (size_t i = 0; i < a.size(); i += 512)
 	{
-		std::array<word<32>, 16>& w = *(std::array<word<32>, 16>*)&(a[i]);
+		std::array<word<32>, 16> & w = *(std::array<word<32>, 16>*) & (a[i]);
 		Transform(s, w);
 	}
 
-	std::array<boolexpr::bx_t, 256>& r = *(std::array<boolexpr::bx_t, 256>*) & s;
+	std::array<boolexpr::bx_t, 256> & r = *(std::array<boolexpr::bx_t, 256>*) & s;
 	return r;
 }

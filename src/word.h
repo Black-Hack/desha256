@@ -2,6 +2,8 @@
 
 #include <boolexpr/boolexpr.h>
 
+#include "boolexpr_util.h"
+
 #include <array>
 #include <algorithm>
 #include <functional>
@@ -16,68 +18,61 @@ template<typename T> T bit_not(const T& a) { return ~a; }
 template<typename T> T bit_zero() { return 0; }
 template<typename T> T bit_one() { return 1; }
 
-template <>
-boolexpr::bx_t bit_and(const boolexpr::bx_t& a, const boolexpr::bx_t& b) {
-	return boolexpr::and_s({ a, b });
-}
-template <>
-boolexpr::bx_t bit_or(const boolexpr::bx_t& a, const boolexpr::bx_t& b) {
-	return boolexpr::or_s({ a, b });
-}
-template <>
-boolexpr::bx_t bit_xor(const boolexpr::bx_t& a, const boolexpr::bx_t& b) {
-	return boolexpr::xor_s({ a, b });
-}
-template <>
-boolexpr::bx_t bit_not(const boolexpr::bx_t& a) {
-	return ~a;
-}
-template <>
-boolexpr::bx_t bit_zero() {
-	return boolexpr::zero_;
-}
-template <>
-boolexpr::bx_t bit_one() {
-	return boolexpr::one_;
-}
+template<> boolexpr::bx_t bit_and(const boolexpr::bx_t& a, const boolexpr::bx_t& b) { return boolexpr::and_s({ a, b }); }
+template<> boolexpr::bx_t bit_or(const boolexpr::bx_t& a, const boolexpr::bx_t& b) { return boolexpr::or_s({ a, b }); }
+template<> boolexpr::bx_t bit_xor(const boolexpr::bx_t& a, const boolexpr::bx_t& b) { return boolexpr::xor_s({ a, b }); }
+template<> boolexpr::bx_t bit_zero() { return boolexpr::zero_; }
+template<> boolexpr::bx_t bit_one() { return boolexpr::one_; }
 
 template<typename T, size_t N>
-constexpr std::array<T, N> operator&(const std::array<T, N>& a, const std::array<T, N>& b) {
+constexpr std::array<T, N>
+operator&(const std::array<T, N>& a, const std::array<T, N>& b)
+{
 	std::array<T, N> r;
 	std::transform(a.begin(), a.end(), b.begin(), r.begin(), bit_and<T>);
 	return r;
 }
 
 template<typename T, size_t N>
-constexpr std::array<T, N> operator|(const std::array<T, N>& a, const std::array<T, N>& b) {
+constexpr std::array<T, N>
+operator|(const std::array<T, N>& a, const std::array<T, N>& b)
+{
 	std::array<T, N> r;
 	std::transform(a.begin(), a.end(), b.begin(), r.begin(), bit_or<T>);
 	return r;
 }
 
 template<typename T, size_t N>
-constexpr std::array<T, N> operator^(const std::array<T, N>& a, const std::array<T, N>& b) {
+constexpr std::array<T, N>
+operator^(const std::array<T, N>& a, const std::array<T, N>& b)
+{
 	std::array<T, N> r;
 	std::transform(a.begin(), a.end(), b.begin(), r.begin(), bit_xor<T>);
 	return r;
 }
 
 template<typename T, size_t N>
-constexpr std::array<T, N> operator~(const std::array<T, N>& a) {
+constexpr std::array<T, N>
+operator~(const std::array<T, N>& a)
+{
 	std::array<T, N> r;
 	std::transform(a.begin(), a.end(), r.begin(), bit_not<T>);
 	return r;
 }
 
 template<typename T, size_t N>
-constexpr std::array<T, N> operator+(const std::array<T, N>& a, const std::array<T, N>& b) {
+constexpr std::array<T, N>
+operator+(const std::array<T, N>& a, const std::array<T, N>& b)
+{
 	T c = bit_zero<T>();
 
 	std::array<T, N> r;
-	for (int i = N - 1; i >= 0; i--) {
+	for (int i = N - 1; i >= 0; i--)
+	{
 		T AxorB = bit_xor(a[i], b[i]);
 		r[i] = bit_xor(AxorB, c);
-		if (i != 0) {
+		if (i != 0)
+		{
 			c = bit_or(bit_and(AxorB, c), bit_and(a[i], b[i]));
 		}
 	}
@@ -85,27 +80,34 @@ constexpr std::array<T, N> operator+(const std::array<T, N>& a, const std::array
 }
 
 template<typename T, size_t N>
-constexpr std::array<T, N>& operator+=(std::array<T, N>& a, const std::array<T, N>& b) {
+std::array<T, N>&
+operator+=(std::array<T, N>& a, const std::array<T, N>& b)
+{
 	a = a + b;
 	return a;
 }
 
 template<typename T, size_t N>
-constexpr std::array<T, N> RotL(const std::array<T, N>& a, size_t n) {
+constexpr std::array<T, N>
+RotL(const std::array<T, N>& a, size_t n)
+{
 	std::array<T, N> r;
 	std::rotate_copy(a.begin(), a.begin() + n % N, a.end(), r.begin());
 	return r;
 }
 
 template<typename T, size_t N>
-constexpr std::array<T, N> RotR(const std::array<T, N>& a, size_t n) {
+constexpr std::array<T, N> RotR(const std::array<T, N>& a, size_t n)
+{
 	std::array<T, N> r;
 	std::rotate_copy(a.begin(), a.end() - n % N, a.end(), r.begin());
 	return r;
 }
 
 template<typename T, size_t N>
-constexpr std::array<T, N> ShL(const std::array<T, N>& a, size_t n) {
+constexpr std::array<T, N>
+ShL(const std::array<T, N>& a, size_t n)
+{
 	std::array<T, N> r;
 	std::copy(a.begin() + n, a.end(), r.begin());
 	std::fill(r.begin() + n, r.end(), bit_zero<T>());
@@ -113,7 +115,9 @@ constexpr std::array<T, N> ShL(const std::array<T, N>& a, size_t n) {
 }
 
 template<typename T, size_t N>
-constexpr std::array<T, N> ShR(const std::array<T, N>& a, size_t n) {
+constexpr std::array<T, N>
+ShR(const std::array<T, N>& a, size_t n)
+{
 	std::array<T, N> r;
 	std::fill_n(r.begin(), n, bit_zero<T>());
 	std::copy_n(a.begin(), N - n, r.begin() + n);
