@@ -4,10 +4,79 @@
 #include <bitset>
 #include <algorithm>
 
-template<typename T> T bit_and(const T& a, const T& b) { return a & b; }
-template<typename T> T bit_or(const T& a, const T& b) { return a | b; }
-template<typename T> T bit_xor(const T& a, const T& b) { return a ^ b; }
-template<typename T> T bit_not(const T& a) { return ~a; }
+template<typename T>
+T bit_not(const T& a)
+{
+	// ~a
+	return ~a;
+}
+
+template<typename T>
+T bit_or(const T& a, const T& b)
+{
+	// a | b
+	return a | b;
+}
+
+template<typename T>
+T bit_nor(const T& a, const T& b)
+{
+	// ~(a | b)
+	return bit_not<T>(bit_or<T>(a, b));
+}
+
+template<typename T>
+T bit_and(const T& a, const T& b)
+{
+	// a & b
+	return a & b;
+}
+
+template<typename T> T bit_nand(const T& a, const T& b)
+{
+	// ~(a & b)
+	return bit_not<T>(bit_and<T>(a, b));
+}
+
+template<typename T> T bit_xor(const T& a, const T& b)
+{
+	// a ^ b
+	return a ^ b;
+}
+
+template<typename T>
+T bit_xnor(const T& a, const T& b)
+{
+	// ~(a ^ b)
+	return bit_not<T>(bit_xor<T>(a, b));
+}
+
+template<typename T>
+T bit_impl(const T& a, const T& b)
+{
+	// ~a | b
+	return bit_or<T>(bit_not<T>(a), b);
+}
+
+template<typename T>
+T bit_nimpl(const T& a, const T& b)
+{
+	// a & ~b
+	return bit_and<T>(a, bit_not<T>(b));
+}
+
+template<typename T> T bit_ite(const T& s, const T& d1, const T& d0)
+{
+	// (~s | d1) & (s | d0)
+	return bit_and<T>(bit_or<T>(bit_not<T>(s), d1), bit_or<T>(s, d0));
+}
+
+template<typename T> T bit_nite(const T& s, const T& d1, const T& d0)
+{
+	// ~((~s | d1) & (s | d0))
+	return bit_not<T>(bit_ite<T>(s, d1, d0));
+}
+
 template<typename T> T bit_zero() { return false; }
 template<typename T> T bit_one() { return true; }
 
