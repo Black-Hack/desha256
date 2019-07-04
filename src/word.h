@@ -1,28 +1,31 @@
 #pragma once
 
-#include <boolexpr/boolexpr.h>
-
-#include "boolexpr_util.h"
-
 #include <array>
+#include <bitset>
 #include <algorithm>
-#include <functional>
-
-template<size_t N>
-using word = std::array<boolexpr::bx_t, N>;
 
 template<typename T> T bit_and(const T& a, const T& b) { return a & b; }
 template<typename T> T bit_or(const T& a, const T& b) { return a | b; }
 template<typename T> T bit_xor(const T& a, const T& b) { return a ^ b; }
 template<typename T> T bit_not(const T& a) { return ~a; }
-template<typename T> T bit_zero() { return 0; }
-template<typename T> T bit_one() { return 1; }
+template<typename T> T bit_zero() { return false; }
+template<typename T> T bit_one() { return true; }
 
-template<> boolexpr::bx_t bit_and(const boolexpr::bx_t& a, const boolexpr::bx_t& b) { return boolexpr::and_s({ a, b }); }
-template<> boolexpr::bx_t bit_or(const boolexpr::bx_t& a, const boolexpr::bx_t& b) { return boolexpr::or_s({ a, b }); }
-template<> boolexpr::bx_t bit_xor(const boolexpr::bx_t& a, const boolexpr::bx_t& b) { return boolexpr::xor_s({ a, b }); }
-template<> boolexpr::bx_t bit_zero() { return boolexpr::zero_; }
-template<> boolexpr::bx_t bit_one() { return boolexpr::one_; }
+template<typename T, typename U>
+constexpr std::array<T, sizeof(U) * 8>
+unpackbits(const U & n)
+{
+	constexpr size_t N = sizeof(U) * 8;
+	std::bitset<N> b(n);
+	std::array<T, N> r;
+
+	for (size_t i = 0; i < N; i++)
+	{
+		r[N - i - 1] = b[i] ? bit_one<T>() : bit_zero<T>();
+	}
+
+	return r;
+}
 
 template<typename T, size_t N>
 constexpr std::array<T, N>
@@ -77,6 +80,20 @@ operator+(const std::array<T, N>& a, const std::array<T, N>& b)
 		}
 	}
 	return r;
+}
+
+template<typename T, typename U>
+constexpr std::array<T, sizeof(U) * 8>
+operator+(const std::array<T, sizeof(U) * 8> a, const U & b)
+{
+	return a + unpackbits<T, U>(b);
+}
+
+template<typename T, typename U>
+constexpr std::array<T, sizeof(U) * 8>
+operator+(const U & b, const std::array<T, sizeof(U) * 8> a)
+{
+	return a + unpackbits<T, U>(b);
 }
 
 template<typename T, size_t N>
