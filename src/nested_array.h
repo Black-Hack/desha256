@@ -25,6 +25,11 @@ public:
 	nested_array(const nested_t& nested) : nested(nested) {}
 	nested_array(nested_t&& nested) : nested(nested) {}
 
+	nested_array<T, N, M>& operator=(const nested_array<T, N, M>& other) {
+		flat = other.flat;
+		return *this;
+	}
+
 	constexpr const T& operator[](size_t i) const
 	{
 		return flat[i];

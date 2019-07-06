@@ -45,13 +45,13 @@ bx_t bit_xnor(const bx_t& a, const bx_t& b)
 template<>
 bx_t bit_impl(const bx_t& a, const bx_t& b)
 {
-	return boolexpr::impl_s({ a, b });
+	return boolexpr::impl_s(a, b);
 }
 
 template<>
 bx_t bit_nimpl(const bx_t& a, const bx_t& b)
 {
-	return boolexpr::nimpl_s({ a, b });
+	return boolexpr::nimpl_s(a, b);
 }
 
 template<>

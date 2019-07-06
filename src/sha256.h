@@ -85,7 +85,7 @@ public:
 			unpackbits<T, uint32_t>(0x9b05688cu),
 			unpackbits<T, uint32_t>(0x1f83d9abu),
 			unpackbits<T, uint32_t>(0x5be0cd19u),
-		}
+		};
 	}
 
 private:
@@ -104,7 +104,6 @@ private:
 		d += t1;
 		word x = t1 + t2;
 		std::move(x.begin(), x.end(), h.begin());
-		std::cout << 'R';
 	}
 
 	/** Perform a number of SHA-256 transformations, processing 64-byte chunks. */
