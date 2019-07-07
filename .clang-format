@@ -1,0 +1,30 @@
+# Reference: http://clang.llvm.org/docs/ClangFormatStyleOptions.html
+---
+
+# The style used for all options not specifically set in the configuration.
+BasedOnStyle: Google
+
+# Language, this format style is targeted at.
+Language: Cpp
+
+# The column limit.
+# A column limit of 0 means that there is no column limit.
+ColumnLimit: 0
+
+# The number of columns to use for indentation.
+IndentWidth: 4
+
+# The number of columns used for tab stops.
+TabWidth: 4
+
+# The way to use tab characters in the resulting file.
+UseTab: ForContinuationAndIndentation
+
+# The extra indent or outdent of access modifiers, e.g. public:.
+AccessModifierOffset: -4
+
+# Dependent on the value, multiple #include blocks can be sorted as one and divided based on category.
+# Preserve: Sort each #include block separately.
+# Merge: Merge multiple #include blocks together and sort as one.
+# Regroup: Merge multiple #include blocks together and sort as one. Then split into groups based on category priority.
+IncludeBlocks: Regroup

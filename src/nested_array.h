@@ -1,65 +1,94 @@
-#pragma once
+#ifndef DESHA256_NESTED_ARRAY_H_
+#define DESHA256_NESTED_ARRAY_H_
 
 #include <array>
 
-template<typename T, size_t N, size_t M>
-union nested_array
-{
+template <typename T, size_t N, size_t M>
+union NestedArray {
 private:
 	using flat_t = std::array<T, N>;
 	using inner_t = std::array<T, N / M>;
 	using nested_t = std::array<inner_t, M>;
 
 public:
-	nested_array() : flat() {}
-	nested_array(const nested_array<T, N, M>& other) : flat(other.flat) {}
+	NestedArray() : flat_() {}
+	NestedArray(const NestedArray<T, N, M>& other) : flat_(other.flat_) {}
 
-	nested_array(const T* ptr) : flat()
-	{
-		std::copy_n(ptr, N, flat.begin());
+	explicit NestedArray(const T* ptr) : flat_() {
+		std::copy_n(ptr, N, flat_.begin());
 	}
 
-	nested_array(const flat_t& flat) : flat(flat) {}
-	nested_array(flat_t&& flat) : flat(flat) {}
+	explicit NestedArray(const flat_t& flat) : flat_(flat) {}
+	explicit NestedArray(flat_t&& flat) : flat_(flat) {}
 
-	nested_array(const nested_t& nested) : nested(nested) {}
-	nested_array(nested_t&& nested) : nested(nested) {}
+	explicit NestedArray(const nested_t& nested) : nested_(nested) {}
+	explicit NestedArray(nested_t&& nested) : nested_(nested) {}
 
-	nested_array<T, N, M>& operator=(const nested_array<T, N, M>& other) {
-		flat = other.flat;
+	inline NestedArray<T, N, M>& operator=(const NestedArray<T, N, M>& other) {
+		flat_ = other.flat_;
+		return *this;
+	}
+	inline NestedArray<T, N, M>& operator=(NestedArray<T, N, M>&& other) {
+		flat_ = other.flat_;
+		return *this;
+	}
+	inline NestedArray<T, N, M>& operator=(const flat_t& x) {
+		flat_ = x;
+		return *this;
+	}
+	inline NestedArray<T, N, M>& operator=(const nested_t& x) {
+		nested_ = x;
+		return *this;
+	}
+	inline NestedArray<T, N, M>& operator=(flat_t&& x) {
+		flat_ = x;
+		return *this;
+	}
+	inline NestedArray<T, N, M>& operator=(nested_t&& x) {
+		nested_ = x;
 		return *this;
 	}
 
-	constexpr const T& operator[](size_t i) const
-	{
-		return flat[i];
+	inline constexpr const T& operator[](size_t i) const {
+		return flat_[i];
 	}
-	T& operator[](size_t i)
-	{
-		return flat[i];
+	inline T& operator[](size_t i) {
+		return flat_[i];
 	}
 
-	constexpr const inner_t& operator()(size_t i) const
-	{
-		return nested[i];
+	inline constexpr const inner_t& operator()(size_t i) const {
+		return nested_[i];
 	}
-	inner_t& operator()(size_t i)
-	{
-		return nested[i];
+	inline inner_t& operator()(size_t i) {
+		return nested_[i];
 	}
 
-	constexpr const T& operator()(size_t i, size_t j) const
-	{
-		return nested[i][j];
+	inline constexpr const T& operator()(size_t i, size_t j) const {
+		return nested_[i][j];
 	}
-	T& operator()(size_t i, size_t j)
-	{
-		return nested[i][j];
+	inline T& operator()(size_t i, size_t j) {
+		return nested_[i][j];
 	}
 
-	~nested_array() {}
+	inline constexpr const flat_t& as_flat() const {
+		return flat_;
+	}
+	inline flat_t& as_flat() {
+		return flat_;
+	}
 
-public:
-	flat_t flat;
-	nested_t nested;
+	inline constexpr const nested_t& as_nested() const {
+		return nested_;
+	}
+	inline nested_t& as_nested() {
+		return nested_;
+	}
+
+	~NestedArray() {}
+
+private:
+	flat_t flat_;
+	nested_t nested_;
 };
+
+#endif  // !DESHA256_NESTED_ARRAY_H_
