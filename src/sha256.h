@@ -3,21 +3,24 @@
 
 #include <algorithm>
 
-#include "nested_array.h"
+#include "nested_container.h"
 #include "word.h"
 
 template <typename T>
 class Sha256 {
 private:
-	using word = std::array<T, 32>;
+	using word_t = Word<T, 32>;
+	using bit_t = Bit<T>;
+	template <size_t N>
+	using nested_word = NestedContainer<std::array<bit_t, N * 32>, std::array<word_t, N>>;
 
 public:
 	Sha256() {
 		Reset();
 	}
 
-	void Write(const T* data, size_t len) {
-		const T* end = data + len;
+	void Write(const bit_t* data, size_t len) {
+		const bit_t* end = data + len;
 		size_t bufsize = bits_ % 512;
 		if (bufsize && bufsize + len >= 512) {
 			// Fill the buffer, and process it.
@@ -48,13 +51,13 @@ public:
 		Write(std::data(data), std::size(data));
 	}
 
-	void Write(const T& data) {
+	void Write(const bit_t& data) {
 		Write(&data, 1);
 	}
 
-	std::array<T, 256>& Finalize() {
+	std::array<Bit<T>, 256>& Finalize() {
 		const size_t len = bits_;
-		T zero = bit_zero<T>(), one = bit_one<T>();
+		Bit<T> zero = Bit<T>::zero(), one = Bit<T>::one();
 
 		Write(&one, 1);
 
@@ -69,39 +72,40 @@ public:
 
 	void Reset() {
 		bits_ = 0;
-		s_ = {
-			unpackbits<T, uint32_t>(0x6a09e667u),
-			unpackbits<T, uint32_t>(0xbb67ae85u),
-			unpackbits<T, uint32_t>(0x3c6ef372u),
-			unpackbits<T, uint32_t>(0xa54ff53au),
-			unpackbits<T, uint32_t>(0x510e527fu),
-			unpackbits<T, uint32_t>(0x9b05688cu),
-			unpackbits<T, uint32_t>(0x1f83d9abu),
-			unpackbits<T, uint32_t>(0x5be0cd19u),
+		s_.as_nested() = {
+			0x6a09e667u,
+			0xbb67ae85u,
+			0x3c6ef372u,
+			0xa54ff53au,
+			0x510e527fu,
+			0x9b05688cu,
+			0x1f83d9abu,
+			0x5be0cd19u,
 		};
 	}
 
 	~Sha256() {}
 
 private:
-	static constexpr word Ch(const word& x, const word& y, const word& z) { return z ^ (x & (y ^ z)); }
-	static constexpr word Maj(const word& x, const word& y, const word& z) { return (x & y) | (z & (x | y)); }
-	static constexpr word Sigma0(const word& x) { return RotR(x, 2) ^ RotR(x, 13) ^ RotR(x, 22); }
-	static constexpr word Sigma1(const word& x) { return RotR(x, 6) ^ RotR(x, 11) ^ RotR(x, 25); }
-	static constexpr word sigma0(const word& x) { return RotR(x, 7) ^ RotR(x, 18) ^ ShR(x, 3); }
-	static constexpr word sigma1(const word& x) { return RotR(x, 17) ^ RotR(x, 19) ^ ShR(x, 10); }
+	static constexpr word_t Ch(const word_t& x, const word_t& y, const word_t& z) { return z ^ (x & (y ^ z)); }
+	static constexpr word_t Maj(const word_t& x, const word_t& y, const word_t& z) { return (x & y) | (z & (x | y)); }
+	static constexpr word_t Sigma0(const word_t& x) { return x.rot_r(2) ^ x.rot_r(13) ^ x.rot_r(22); }
+	static constexpr word_t Sigma1(const word_t& x) { return x.rot_r(6) ^ x.rot_r(11) ^ x.rot_r(25); }
+	static constexpr word_t sigma0(const word_t& x) { return x.rot_r(7) ^ x.rot_r(18) ^ (x >> 3); }
+	static constexpr word_t sigma1(const word_t& x) { return x.rot_r(17) ^ x.rot_r(19) ^ (x >> 10); }
 
 	/** One round of SHA-256. */
-	static void Round(const word& a, const word& b, const word& c, word& d, const word& e, const word& f, const word& g, word& h, const word& k) {
-		word t1 = h + Sigma1(e) + Ch(e, f, g) + k;
-		word t2 = Sigma0(a) + Maj(a, b, c);
+	static void Round(const word_t& a, const word_t& b, const word_t& c, word_t& d,
+					  const word_t& e, const word_t& f, const word_t& g, word_t& h, const word_t& k) {
+		word_t t1 = h + Sigma1(e) + Ch(e, f, g) + k;
+		word_t t2 = Sigma0(a) + Maj(a, b, c);
 		d += t1;
 		h = t1 + t2;
 	}
 
 	/** Perform a number of SHA-256 transformations, processing 64-byte chunks. */
 	void Transform() {
-		word a = s_(0), b = s_(1), c = s_(2), d = s_(3), e = s_(4), f = s_(5), g = s_(6), h = s_(7);
+		word_t a = s_(0), b = s_(1), c = s_(2), d = s_(3), e = s_(4), f = s_(5), g = s_(6), h = s_(7);
 
 		Round(a, b, c, d, e, f, g, h, 0x428a2f98 + buf_(0x0));
 		Round(h, a, b, c, d, e, f, g, 0x71374491 + buf_(0x1));
@@ -183,8 +187,8 @@ private:
 
 private:
 	uint64_t bits_;
-	NestedArray<T, 512, 16> buf_;
-	NestedArray<T, 256, 8> s_;
+	nested_word<16> buf_;
+	nested_word<8> s_;
 };
 
 #endif  // !DESHA256_SHA256_H_
