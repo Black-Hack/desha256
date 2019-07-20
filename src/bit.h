@@ -1,6 +1,8 @@
 #ifndef DESHA256_BIT_H_
 #define DESHA256_BIT_H_
 
+#include <iostream>
+
 template <typename T>
 class Bit {
 public:
@@ -29,10 +31,7 @@ public:
 	static Bit<T> zero() { return raw_zero(); }
 	static Bit<T> one() { return raw_one(); }
 
-	static Bit<T> not_(const Bit<T>& a) {
-		T r = raw_not(a.val);
-		return r;
-	}
+	static Bit<T> not_(const Bit<T>& a) { return raw_not(a.val); }
 	static Bit<T> and_(const Bit<T>& a, const Bit<T>& b) { return raw_and(a.val, b.val); }
 	static Bit<T> or_(const Bit<T>& a, const Bit<T>& b) { return raw_or(a.val, b.val); }
 	static Bit<T> xor_(const Bit<T>& a, const Bit<T>& b) { return raw_xor(a.val, b.val); }
@@ -44,10 +43,22 @@ public:
 	static Bit<T> impl(const Bit<T>& p, const Bit<T>& q) { return raw_impl(p.val, q.val); }
 	static Bit<T> ite(const Bit<T>& s, const Bit<T>& d1, const Bit<T>& d0) { return raw_ite(s.val, d1.val, d0.val); }
 
-	Bit<T> operator~() const { return raw_not(val); }
-	Bit<T> operator&(const Bit<T>& other) const { return raw_and(val, other.val); }
-	Bit<T> operator|(const Bit<T>& other) const { return raw_or(val, other.val); }
-	Bit<T> operator^(const Bit<T>& other) const { return raw_xor(val, other.val); }
+	Bit<T> operator~() const {
+		//std::cout << '~';
+		return raw_not(val);
+	}
+	Bit<T> operator&(const Bit<T>& other) const {
+		//std::cout << '&';
+		return raw_and(val, other.val);
+	}
+	Bit<T> operator|(const Bit<T>& other) const {
+		//std::cout << '|';
+		return raw_or(val, other.val);
+	}
+	Bit<T> operator^(const Bit<T>& other) const {
+		//std::cout << '^';
+		return raw_xor(val, other.val);
+	}
 
 	Bit<T>& operator&=(const Bit<T>& other) {
 		val = raw_and(val, other.val);

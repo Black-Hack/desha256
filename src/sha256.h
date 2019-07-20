@@ -2,6 +2,7 @@
 #define DESHA256_SHA256_H_
 
 #include <algorithm>
+#include <iostream>
 
 #include "nested_container.h"
 #include "word.h"
@@ -55,6 +56,10 @@ public:
 		Write(&data, 1);
 	}
 
+	void Write(const T& data) {
+		Write(bit_t(data));
+	}
+
 	std::array<Bit<T>, 256>& Finalize() {
 		const size_t len = bits_;
 		Bit<T> zero = Bit<T>::zero(), one = Bit<T>::one();
@@ -101,6 +106,7 @@ private:
 		word_t t2 = Sigma0(a) + Maj(a, b, c);
 		d += t1;
 		h = t1 + t2;
+		std::cout << 'R';
 	}
 
 	/** Perform a number of SHA-256 transformations, processing 64-byte chunks. */
